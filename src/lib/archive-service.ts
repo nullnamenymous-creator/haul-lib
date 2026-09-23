@@ -97,10 +97,18 @@ export async function getMediaFiles(params?: {
     const { data, error } = await query;
 
     let results: MediaFile[] = [];
-    if (error || !data || data.length === 0) {
+    if (error) {
       results = [...DEMO_MEDIA_FILES];
-    } else {
+    } else if (data && data.length > 0) {
       results = data as MediaFile[];
+    } else {
+      // If table is completely empty and no filters were applied, fallback to demo until seeded
+      const hasFilter = params?.fileType !== 'all' || params?.eventId || params?.searchQuery || params?.figureId || params?.year;
+      if (!hasFilter && (!data || data.length === 0)) {
+        results = [...DEMO_MEDIA_FILES];
+      } else {
+        results = (data as MediaFile[]) || [];
+      }
     }
 
     // Apply in-memory filters for nested / search queries
@@ -153,5 +161,55 @@ export async function getMediaFiles(params?: {
       );
     }
     return results;
+  }
+}
+
+export async function updateMediaMetadata(
+  id: string,
+  updates: { title: string; description: string; event_id: string }
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = createClient();
+    const { error } = await (supabase.from('media_files') as any)
+      .update(updates)
+      .eq('id', id);
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err?.message };
+  }
+}
+
+export async function deleteMediaArchive(
+  id: string,
+  fileUrl?: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = createClient();
+    if (fileUrl && fileUrl.includes('/haul-archive/')) {
+      try {
+        const urlParts = fileUrl.split('/haul-archive/');
+        if (urlParts.length > 1) {
+          const storagePath = decodeURIComponent(urlParts[1]);
+          await supabase.storage.from('haul-archive').remove([storagePath]);
+        }
+      } catch (e) {
+        console.warn('Storage delete notice:', e);
+      }
+    }
+
+    const { error } = await (supabase.from('media_files') as any)
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err?.message };
   }
 }

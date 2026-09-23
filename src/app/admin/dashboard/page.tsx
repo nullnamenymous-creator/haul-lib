@@ -52,6 +52,7 @@ export default function AdminDashboardPage() {
 
   // Notification Banner
   const [feedbackMsg, setFeedbackMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [isLiveConnected, setIsLiveConnected] = useState(false);
 
   useEffect(() => {
     async function checkAuthAndLoad() {
@@ -78,6 +79,62 @@ export default function AdminDashboardPage() {
     }
     checkAuthAndLoad();
   }, [router]);
+
+  // Supabase Realtime Subscription for Admin Dashboard
+  useEffect(() => {
+    if (!isAuthorized) return;
+
+    const supabase = createClient();
+    const channelName = `admin-dashboard-realtime-${Date.now()}`;
+    const channel = supabase
+      .channel(channelName)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'media_files' },
+        async (payload) => {
+          console.log('[Admin Realtime] Event:', payload.eventType);
+          if (payload.eventType === 'INSERT') {
+            try {
+              const { data: newMedia } = await (supabase
+                .from('media_files') as any)
+                .select('*, event:haul_events(*, figure:figures(*))')
+                .eq('id', payload.new.id)
+                .single();
+
+              if (newMedia) {
+                setMediaList((prev) => [newMedia as MediaFile, ...prev.filter((m) => m.id !== newMedia.id)]);
+              } else {
+                const refreshed = await getMediaFiles();
+                setMediaList(refreshed);
+              }
+            } catch {
+              const refreshed = await getMediaFiles();
+              setMediaList(refreshed);
+            }
+          } else if (payload.eventType === 'UPDATE') {
+            setMediaList((prev) =>
+              prev.map((item) =>
+                item.id === payload.new.id
+                  ? { ...item, ...payload.new, event: item.event }
+                  : item
+              )
+            );
+          } else if (payload.eventType === 'DELETE') {
+            const deletedId = (payload.old as any)?.id;
+            if (deletedId) {
+              setMediaList((prev) => prev.filter((item) => item.id !== deletedId));
+            }
+          }
+        }
+      )
+      .subscribe((status) => {
+        setIsLiveConnected(status === 'SUBSCRIBED');
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [isAuthorized]);
 
   const handleLogout = async () => {
     await clearAdminSession();
@@ -221,6 +278,13 @@ export default function AdminDashboardPage() {
             <span className="text-xs px-2 py-0.5 rounded bg-emerald-900 text-amber-300 border border-emerald-800">
               Admin Portal
             </span>
+            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-900/80 border border-emerald-700/60 text-emerald-300 text-xs font-mono">
+              <span className="relative flex h-2 w-2">
+                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isLiveConnected ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+                <span className={`relative inline-flex rounded-full h-2 w-2 ${isLiveConnected ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+              </span>
+              <span className="text-[11px]">{isLiveConnected ? 'Realtime Aktif' : 'Menghubungkan...'}</span>
+            </div>
           </div>
 
           <div className="flex items-center gap-3">

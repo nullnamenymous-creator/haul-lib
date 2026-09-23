@@ -24,6 +24,7 @@ import {
   Lock,
 } from 'lucide-react';
 import { checkIsAdmin } from '@/lib/auth-check';
+import { useRealtimeMedia } from '@/hooks/useRealtimeMedia';
 import { Tabs, TabItem } from '@/components/ui/Tabs';
 import { Button } from '@/components/ui/Button';
 import { PhotoLightbox } from '@/components/media/PhotoLightbox';
@@ -34,8 +35,6 @@ import { PdfPreviewModal } from '@/components/media/PdfPreviewModal';
 export default function CatalogPage() {
   const [figures, setFigures] = useState<Figure[]>([]);
   const [events, setEvents] = useState<HaulEvent[]>([]);
-  const [mediaList, setMediaList] = useState<MediaFile[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
   // Filters state
@@ -44,32 +43,35 @@ export default function CatalogPage() {
   const [selectedFigureId, setSelectedFigureId] = useState<string>('all');
   const [selectedYear, setSelectedYear] = useState<string>('all');
 
+  // Supabase Realtime synchronization
+  const {
+    mediaList,
+    setMediaList,
+    isLoading,
+    isLiveConnected,
+  } = useRealtimeMedia();
+
   // Previewer modals state
   const [selectedMedia, setSelectedMedia] = useState<MediaFile | null>(null);
   const [previewType, setPreviewType] = useState<MediaType | null>(null);
 
-  // Fetch initial data
+  // Fetch initial metadata (figures, events, admin status)
   useEffect(() => {
-    async function loadData() {
+    async function loadMeta() {
       try {
-        setIsLoading(true);
-        const [fetchedFigures, fetchedEvents, fetchedMedia, adminStatus] = await Promise.all([
+        const [fetchedFigures, fetchedEvents, adminStatus] = await Promise.all([
           getFigures(),
           getHaulEvents(),
-          getMediaFiles(),
           checkIsAdmin(),
         ]);
         setFigures(fetchedFigures);
         setEvents(fetchedEvents);
-        setMediaList(fetchedMedia);
         setIsAdmin(adminStatus);
       } catch (err) {
-        console.error('Failed to load archive data:', err);
-      } finally {
-        setIsLoading(false);
+        console.error('Failed to load archive metadata:', err);
       }
     }
-    loadData();
+    loadMeta();
   }, []);
 
   // Compute years available from events
@@ -197,10 +199,22 @@ export default function CatalogPage() {
         <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-700/20 rounded-full blur-2xl pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/20 border border-amber-400/30 text-amber-300 text-xs font-medium mb-6 backdrop-blur-sm shadow-sm animate-in fade-in">
-            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-            <span>Koleksi Terbuka Khazanah & Manaqib Para Kekasih Allah</span>
+          {/* Badges */}
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/20 border border-amber-400/30 text-amber-300 text-xs font-medium backdrop-blur-sm shadow-sm animate-in fade-in">
+              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+              <span>Koleksi Terbuka Khazanah & Manaqib Para Kekasih Allah</span>
+            </div>
+
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-950/70 border border-emerald-500/40 text-emerald-200 text-xs shadow-inner backdrop-blur-sm">
+              <span className="relative flex h-2 w-2">
+                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isLiveConnected ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+                <span className={`relative inline-flex rounded-full h-2 w-2 ${isLiveConnected ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+              </span>
+              <span className="font-mono text-[11px] tracking-wide text-emerald-300">
+                {isLiveConnected ? 'Supabase Realtime Terhubung' : 'Sinkronisasi Realtime...'}
+              </span>
+            </div>
           </div>
 
           {/* Title with Arabic typography styling */}

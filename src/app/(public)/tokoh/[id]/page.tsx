@@ -21,6 +21,7 @@ import {
   Lock,
 } from 'lucide-react';
 import { checkIsAdmin } from '@/lib/auth-check';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { PhotoLightbox } from '@/components/media/PhotoLightbox';
 import { VideoPlayer } from '@/components/media/VideoPlayer';
@@ -62,6 +63,28 @@ export default function TokohDetailPage() {
     if (id) {
       loadData();
     }
+  }, [id]);
+
+  // Realtime updates for media under this figure
+  useEffect(() => {
+    if (!id) return;
+    const supabase = createClient();
+    const channelName = `realtime-tokoh-${id}-${Date.now()}`;
+    const channel = supabase
+      .channel(channelName)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'media_files' },
+        async () => {
+          const allMedia = await getMediaFiles();
+          setMediaList(allMedia.filter((m) => m.event?.figure_id === id));
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [id]);
 
   const handleOpenPreview = (item: MediaFile) => {
