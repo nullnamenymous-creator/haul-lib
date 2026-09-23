@@ -76,7 +76,7 @@ export const DEMO_EVENTS: HaulEvent[] = [
 
 export const DEMO_MEDIA_FILES: MediaFile[] = [
   {
-    id: 'm1111111-1111-1111-1111-111111111111',
+    id: 'c1111111-1111-1111-1111-111111111111',
     event_id: 'b1111111-1111-1111-1111-111111111111',
     title: 'Dokumentasi Suasana Puncak Haul Akbar Ke-15',
     description: "Lautan jamaah dan para habaib memadati pelataran utama majelis pada malam puncak khotmil Qur'an dan tahlil akbar.",
@@ -89,7 +89,7 @@ export const DEMO_MEDIA_FILES: MediaFile[] = [
     event: DEMO_EVENTS[0],
   },
   {
-    id: 'm2222222-2222-2222-2222-222222222222',
+    id: 'c2222222-2222-2222-2222-222222222222',
     event_id: 'b1111111-1111-1111-1111-111111111111',
     title: "Video Dokumentasi Tausiyah Hikmah Haul Ke-15",
     description: 'Cuplikan tausiyah mendalam mengenai keteladanan akhlak dan sanad keilmuan Mu\'alim Ahmad Shobandi dalam mendidik generasi.',
@@ -102,7 +102,7 @@ export const DEMO_MEDIA_FILES: MediaFile[] = [
     event: DEMO_EVENTS[0],
   },
   {
-    id: 'm3333333-3333-3333-3333-333333333333',
+    id: 'c3333333-3333-3333-3333-333333333333',
     event_id: 'b1111111-1111-1111-1111-111111111111',
     title: "Rekaman Audio Pembacaan Manaqib & Qasidah Burdah",
     description: "Lantunan merdu bait-bait qasidah sanjungan baginda Rasulullah SAW dan riwayat manaqib perjuangan dakwah guru mulia.",
@@ -115,7 +115,7 @@ export const DEMO_MEDIA_FILES: MediaFile[] = [
     event: DEMO_EVENTS[0],
   },
   {
-    id: 'm4444444-4444-4444-4444-444444444444',
+    id: 'c4444444-4444-4444-4444-444444444444',
     event_id: 'b1111111-1111-1111-1111-111111111111',
     title: "Buku Risalah Manaqib & Susunan Doa Haul Ke-15",
     description: "Dokumen resmi panduan jamaah berisi silsilah, wirid ratibul haddad, serta biografi singkat shahibul haul dalam format PDF siap cetak.",
@@ -128,7 +128,7 @@ export const DEMO_MEDIA_FILES: MediaFile[] = [
     event: DEMO_EVENTS[0],
   },
   {
-    id: 'm5555555-5555-5555-5555-555555555555',
+    id: 'c5555555-5555-5555-5555-555555555555',
     event_id: 'b2222222-2222-2222-2222-222222222222',
     title: "Foto Bersejarah Peninggalan Kitab & Manuskrip",
     description: "Koleksi manuskrip catatan tangan dan kajian kitab fiqih Mu'alim Ahmad Shobandi yang terawat baik.",
@@ -141,7 +141,7 @@ export const DEMO_MEDIA_FILES: MediaFile[] = [
     event: DEMO_EVENTS[1],
   },
   {
-    id: 'm6666666-6666-6666-6666-666666666666',
+    id: 'c6666666-6666-6666-6666-666666666666',
     event_id: 'b3333333-3333-3333-3333-333333333333',
     title: 'Dokumentasi Lautan Jamaah Haul Solo Habib Ali Al-Habsyi',
     description: 'Pemandangan udara dan suasana jalan Kapten Mulyadi Pasar Kliwon Surakarta saat pembacaan Maulid Simtudduror.',
@@ -154,7 +154,7 @@ export const DEMO_MEDIA_FILES: MediaFile[] = [
     event: DEMO_EVENTS[2],
   },
   {
-    id: 'm7777777-7777-7777-7777-777777777777',
+    id: 'c7777777-7777-7777-7777-777777777777',
     event_id: 'b3333333-3333-3333-3333-333333333333',
     title: 'Audio Lantunan Maulid Simtudduror Lengkap',
     description: 'Rekaman audio jernih pembacaan fasal-fasal Maulid Habsyi bersama para habaib dan masyayikh di Masjid Riyadh Solo.',
@@ -167,7 +167,7 @@ export const DEMO_MEDIA_FILES: MediaFile[] = [
     event: DEMO_EVENTS[2],
   },
   {
-    id: 'm8888888-8888-8888-8888-888888888888',
+    id: 'c8888888-8888-8888-8888-888888888888',
     event_id: 'b4444444-4444-4444-4444-444444444444',
     title: 'Video Rekaman Suasana Dzikir Bersama Haul Sekumpul',
     description: 'Momen khusyuk lantunan tahlil dan doa bersama jutaan jamaah di Kompleks Rawdha Martapura.',
@@ -180,7 +180,7 @@ export const DEMO_MEDIA_FILES: MediaFile[] = [
     event: DEMO_EVENTS[3],
   },
   {
-    id: 'm9999999-9999-9999-9999-999999999999',
+    id: 'c9999999-9999-9999-9999-999999999999',
     event_id: 'b4444444-4444-4444-4444-444444444444',
     title: 'Panduan Rute & Jadwal Acara Haul Akbar',
     description: 'Brosur panduan jalur transportasi, titik wudhu, posko kesehatan, dan tata tertib jamaah.',
@@ -191,5 +191,5 @@ export const DEMO_MEDIA_FILES: MediaFile[] = [
     download_count: 430,
     created_at: '2024-01-14T07:00:00Z',
     event: DEMO_EVENTS[3],
-  }
+  },
 ];
