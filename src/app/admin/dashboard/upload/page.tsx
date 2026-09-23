@@ -19,6 +19,7 @@ import {
   X,
   Sparkles,
 } from 'lucide-react';
+import { checkIsAdmin } from '@/lib/auth-check';
 import { Button } from '@/components/ui/Button';
 import { Input, Textarea, Select } from '@/components/ui/Input';
 
@@ -26,6 +27,7 @@ export default function AdminUploadPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
   const [events, setEvents] = useState<HaulEvent[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -43,15 +45,22 @@ export default function AdminUploadPage() {
   const [uploadSuccess, setUploadSuccess] = useState(false);
 
   useEffect(() => {
-    async function loadEvents() {
+    async function initUploadPage() {
+      const isAdmin = await checkIsAdmin();
+      if (!isAdmin) {
+        router.replace('/admin/login');
+        return;
+      }
+      setIsAuthorized(true);
+
       const evs = await getHaulEvents();
       setEvents(evs);
       if (evs.length > 0) {
         setEventId(evs[0].id);
       }
     }
-    loadEvents();
-  }, []);
+    initUploadPage();
+  }, [router]);
 
   const handleFileSelect = (file: File) => {
     setSelectedFile(file);
@@ -180,6 +189,16 @@ export default function AdminUploadPage() {
     audio: { label: 'Audio', icon: <Music className="w-4 h-4 text-teal-600" /> },
     document: { label: 'Dokumen PDF', icon: <FileText className="w-4 h-4 text-stone-600" /> },
   }[detectedType];
+
+  if (isAuthorized === null || !isAuthorized) {
+    return (
+      <div className="min-h-screen bg-stone-50 flex flex-col items-center justify-center p-4">
+        <div className="w-12 h-12 border-4 border-emerald-300 border-t-emerald-800 rounded-full animate-spin mb-4" />
+        <p className="text-sm font-medium text-emerald-950 font-serif">Memeriksa Otorisasi Akses Pengunggah...</p>
+        <p className="text-xs text-stone-500 mt-1">Halaman unggah hanya untuk pengurus repositori.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900 pb-16">

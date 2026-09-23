@@ -25,12 +25,14 @@ import {
   AlertTriangle,
   CheckCircle,
 } from 'lucide-react';
+import { checkIsAdmin, clearAdminSession } from '@/lib/auth-check';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { Input, Textarea, Select } from '@/components/ui/Input';
 
 export default function AdminDashboardPage() {
   const router = useRouter();
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
   const [mediaList, setMediaList] = useState<MediaFile[]>([]);
   const [figures, setFigures] = useState<Figure[]>([]);
   const [events, setEvents] = useState<HaulEvent[]>([]);
@@ -52,7 +54,14 @@ export default function AdminDashboardPage() {
   const [feedbackMsg, setFeedbackMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
-    async function loadData() {
+    async function checkAuthAndLoad() {
+      const isAdmin = await checkIsAdmin();
+      if (!isAdmin) {
+        router.replace('/admin/login');
+        return;
+      }
+      setIsAuthorized(true);
+
       try {
         setIsLoading(true);
         const [allMedia, allFigures, allEvents] = await Promise.all([
@@ -67,16 +76,12 @@ export default function AdminDashboardPage() {
         setIsLoading(false);
       }
     }
-    loadData();
-  }, []);
+    checkAuthAndLoad();
+  }, [router]);
 
   const handleLogout = async () => {
-    try {
-      const supabase = createClient();
-      await supabase.auth.signOut();
-    } catch {}
-    localStorage.removeItem('admin-demo-auth');
-    router.push('/admin/login');
+    await clearAdminSession();
+    router.push('/');
   };
 
   // Metrics computation
@@ -188,6 +193,16 @@ export default function AdminDashboardPage() {
       setIsDeleting(false);
     }
   };
+
+  if (isAuthorized === null || !isAuthorized) {
+    return (
+      <div className="min-h-screen bg-stone-50 flex flex-col items-center justify-center p-4">
+        <div className="w-12 h-12 border-4 border-emerald-300 border-t-emerald-800 rounded-full animate-spin mb-4" />
+        <p className="text-sm font-medium text-emerald-950 font-serif">Memeriksa Otorisasi Akses Admin...</p>
+        <p className="text-xs text-stone-500 mt-1">Hanya pengurus terdaftar yang berhak mengakses dasbor arsip.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900 flex flex-col">
