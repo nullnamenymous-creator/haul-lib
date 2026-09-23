@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MediaFile } from '@/types/database';
 import { formatBytes } from '@/lib/utils';
-import { FileText, Download, X, ExternalLink } from 'lucide-react';
+import { checkIsAdmin } from '@/lib/auth-check';
+import { FileText, Download, X, Lock, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
 export interface PdfPreviewModalProps {
@@ -11,6 +12,7 @@ export interface PdfPreviewModalProps {
   isOpen: boolean;
   onClose: () => void;
   onDownload?: (media: MediaFile) => void;
+  isAdmin?: boolean;
 }
 
 export const PdfPreviewModal: React.FC<PdfPreviewModalProps> = ({
@@ -18,12 +20,27 @@ export const PdfPreviewModal: React.FC<PdfPreviewModalProps> = ({
   isOpen,
   onClose,
   onDownload,
+  isAdmin: propIsAdmin,
 }) => {
+  const [isAdmin, setIsAdmin] = useState(propIsAdmin ?? false);
   const [isDownloading, setIsDownloading] = useState(false);
+
+  useEffect(() => {
+    if (propIsAdmin === undefined) {
+      checkIsAdmin().then(setIsAdmin);
+    } else {
+      setIsAdmin(propIsAdmin);
+    }
+  }, [propIsAdmin, isOpen]);
 
   if (!isOpen || !media) return null;
 
   const handleDownloadClick = async () => {
+    if (!isAdmin) {
+      alert('Akses unduhan dokumen risalah/naskah dibatasi khusus untuk Pengurus Majelis.');
+      return;
+    }
+
     try {
       setIsDownloading(true);
       if (onDownload) {
@@ -68,31 +85,28 @@ export const PdfPreviewModal: React.FC<PdfPreviewModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            <a
-              href={media.file_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 rounded-lg text-emerald-200 hover:text-white hover:bg-emerald-900 transition hidden sm:inline-flex items-center gap-1.5 text-xs"
-              title="Buka di tab baru"
-            >
-              <ExternalLink className="w-4 h-4" />
-              <span>Tab Baru</span>
-            </a>
-
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={handleDownloadClick}
-              isLoading={isDownloading}
-              icon={<Download className="w-3.5 h-3.5" />}
-              className="text-xs py-1.5 h-8 bg-amber-500 hover:bg-amber-600 text-stone-950 font-semibold"
-            >
-              Unduh PDF
-            </Button>
+            {/* Restricted Download Logic: Only Admin can download */}
+            {isAdmin ? (
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={handleDownloadClick}
+                isLoading={isDownloading}
+                icon={<Download className="w-3.5 h-3.5" />}
+                className="text-xs py-1.5 h-8 bg-amber-500 hover:bg-amber-600 text-stone-950 font-bold"
+              >
+                Unduh PDF (Admin)
+              </Button>
+            ) : (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-300 border border-amber-500/30 text-xs font-medium">
+                <Lock className="w-3.5 h-3.5 text-amber-400" />
+                <span className="hidden sm:inline">Hanya Baca</span> (Unduh Khusus Pengurus)
+              </div>
+            )}
 
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-emerald-300 hover:text-white hover:bg-rose-950/60 transition"
+              className="p-1.5 rounded-lg text-emerald-300 hover:text-white hover:bg-rose-950/60 transition ml-1"
               aria-label="Tutup"
             >
               <X className="w-5 h-5" />
@@ -103,21 +117,24 @@ export const PdfPreviewModal: React.FC<PdfPreviewModalProps> = ({
         {/* PDF Frame / Embed Container */}
         <div className="flex-1 bg-stone-100 relative">
           <iframe
-            src={`${media.file_url}#toolbar=1&navpanes=0`}
+            src={`${media.file_url}#toolbar=0&navpanes=0`}
             className="w-full h-full border-none"
             title={media.title}
           />
         </div>
 
         {/* Description info footer */}
-        {media.description && (
-          <div className="px-5 py-2.5 bg-stone-50 border-t border-stone-200 text-xs text-stone-600 flex items-center justify-between">
-            <p className="truncate max-w-3xl">{media.description}</p>
-            <span className="shrink-0 text-stone-400">
-              {media.download_count} unduhan
+        <div className="px-5 py-2.5 bg-stone-50 border-t border-stone-200 text-xs text-stone-600 flex flex-wrap items-center justify-between gap-2">
+          <p className="truncate max-w-xl">
+            {media.description || 'Naskah dan dokumen resmi perhelatan haul.'}
+          </p>
+          {!isAdmin && (
+            <span className="flex items-center gap-1 text-[11px] text-amber-800 font-medium">
+              <ShieldAlert className="w-3.5 h-3.5 text-amber-600" />
+              <span>Untuk mengunduh dokumen asli, silakan login melalui portal pengurus.</span>
             </span>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

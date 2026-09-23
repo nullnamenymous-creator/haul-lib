@@ -21,7 +21,9 @@ import {
   Filter,
   Check,
   ChevronRight,
+  Lock,
 } from 'lucide-react';
+import { checkIsAdmin } from '@/lib/auth-check';
 import { Tabs, TabItem } from '@/components/ui/Tabs';
 import { Button } from '@/components/ui/Button';
 import { PhotoLightbox } from '@/components/media/PhotoLightbox';
@@ -34,6 +36,7 @@ export default function CatalogPage() {
   const [events, setEvents] = useState<HaulEvent[]>([]);
   const [mediaList, setMediaList] = useState<MediaFile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Filters state
   const [activeTab, setActiveTab] = useState<string>('all');
@@ -50,14 +53,16 @@ export default function CatalogPage() {
     async function loadData() {
       try {
         setIsLoading(true);
-        const [fetchedFigures, fetchedEvents, fetchedMedia] = await Promise.all([
+        const [fetchedFigures, fetchedEvents, fetchedMedia, adminStatus] = await Promise.all([
           getFigures(),
           getHaulEvents(),
           getMediaFiles(),
+          checkIsAdmin(),
         ]);
         setFigures(fetchedFigures);
         setEvents(fetchedEvents);
         setMediaList(fetchedMedia);
+        setIsAdmin(adminStatus);
       } catch (err) {
         console.error('Failed to load archive data:', err);
       } finally {
@@ -155,6 +160,11 @@ export default function CatalogPage() {
 
   // Download Trigger
   const handleDownload = (item: MediaFile) => {
+    if (item.file_type === 'document' && !isAdmin) {
+      alert('Akses berkas dilindungi. Unduhan naskah dokumen hanya dapat dilakukan oleh Pengurus Majelis / Admin.');
+      return;
+    }
+
     fetch('/api/increment-download', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -463,27 +473,45 @@ export default function CatalogPage() {
                       </div>
 
                       {/* Action Buttons: Preview & Unduh */}
-                      <div className="grid grid-cols-2 gap-2 pt-1">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleOpenPreview(item)}
-                          icon={<Eye className="w-3.5 h-3.5 text-emerald-800" />}
-                          className="w-full text-xs py-1.5 h-8 font-medium"
-                        >
-                          Preview
-                        </Button>
+                      {item.file_type === 'document' && !isAdmin ? (
+                        <div className="space-y-1.5 pt-1">
+                          <Button
+                            size="sm"
+                            variant="primary"
+                            onClick={() => handleOpenPreview(item)}
+                            icon={<Eye className="w-3.5 h-3.5 text-amber-300" />}
+                            className="w-full text-xs py-1.5 h-8 font-semibold bg-emerald-900 hover:bg-emerald-950"
+                          >
+                            Buka Dokumen (Preview)
+                          </Button>
+                          <div className="flex items-center justify-center gap-1.5 text-[10px] text-amber-800 font-medium bg-amber-50/80 border border-amber-200/50 py-0.5 rounded-md">
+                            <Lock className="w-2.5 h-2.5 text-amber-600" />
+                            <span>Unduh berkas dibatasi untuk pengurus</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-2 pt-1">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleOpenPreview(item)}
+                            icon={<Eye className="w-3.5 h-3.5 text-emerald-800" />}
+                            className="w-full text-xs py-1.5 h-8 font-medium"
+                          >
+                            Preview
+                          </Button>
 
-                        <Button
-                          size="sm"
-                          variant="primary"
-                          onClick={() => handleDownload(item)}
-                          icon={<Download className="w-3.5 h-3.5 text-amber-300" />}
-                          className="w-full text-xs py-1.5 h-8 font-semibold bg-emerald-900 hover:bg-emerald-950"
-                        >
-                          Unduh
-                        </Button>
-                      </div>
+                          <Button
+                            size="sm"
+                            variant="primary"
+                            onClick={() => handleDownload(item)}
+                            icon={<Download className="w-3.5 h-3.5 text-amber-300" />}
+                            className="w-full text-xs py-1.5 h-8 font-semibold bg-emerald-900 hover:bg-emerald-950"
+                          >
+                            {item.file_type === 'document' ? 'Unduh (Admin)' : 'Unduh'}
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -527,6 +555,7 @@ export default function CatalogPage() {
           isOpen={true}
           onClose={handleClosePreview}
           onDownload={handleDownload}
+          isAdmin={isAdmin}
         />
       )}
     </div>
