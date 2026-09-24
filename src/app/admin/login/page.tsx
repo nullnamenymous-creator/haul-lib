@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import { verifyAdminPin, setAdminSession } from '@/lib/auth-check';
 import { Button } from '@/components/ui/Button';
@@ -11,7 +12,6 @@ import {
   Lock,
   Mail,
   ShieldCheck,
-  ArrowLeft,
   KeyRound,
   Eye,
   EyeOff,
@@ -95,14 +95,6 @@ export default function AdminLoginPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-islamic-pattern p-4 sm:p-6">
       <div className="w-full max-w-md">
-        {/* Back Link */}
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-xs font-medium text-emerald-800 hover:text-emerald-950 transition mb-6"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Kembali ke Beranda Publik</span>
-        </Link>
 
         {/* Card */}
         <div className="bg-white rounded-3xl shadow-islamic-lg border border-stone-200 p-7 sm:p-9 space-y-6 relative overflow-hidden">
@@ -111,14 +103,21 @@ export default function AdminLoginPage() {
 
           {/* Header */}
           <div className="text-center space-y-2">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-800 via-emerald-900 to-emerald-950 text-amber-300 border border-amber-500/40 flex items-center justify-center mx-auto shadow-md">
-              <ShieldCheck className="w-7 h-7" />
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-800 via-emerald-900 to-emerald-950 p-1.5 border border-amber-500/40 flex items-center justify-center mx-auto shadow-md overflow-hidden">
+              <Image
+                src="/icons/logo-haol.png"
+                alt="Logo Haul & Majelis"
+                width={56}
+                height={56}
+                className="w-full h-full object-contain rounded-xl"
+                priority
+              />
             </div>
             <h1 className="font-serif text-2xl font-bold text-emerald-950 tracking-tight">
-              Portal Pengurus Arsip
+              Repositori Berkas & Dokumen
             </h1>
             <p className="text-xs text-stone-500">
-              Hanya admin & pengurus yang berhak mengakses dasbor repositori dan mengelola arsip.
+              Sistem Khusus Penyimpanan & Arsip Digital Haul. Masukkan PIN untuk mengakses berkas.
             </p>
           </div>
 

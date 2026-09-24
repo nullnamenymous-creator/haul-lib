@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Heart, ShieldCheck, Sparkles, BookOpen } from 'lucide-react';
 
 export const Footer: React.FC = () => {
@@ -13,8 +14,14 @@ export const Footer: React.FC = () => {
           {/* Column 1: Identity & Mission */}
           <div className="md:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center justify-center font-serif font-bold text-lg">
-                ح
+              <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center justify-center p-1 overflow-hidden shrink-0">
+                <Image
+                  src="/icons/logo-haol.png"
+                  alt="Logo Haul & Majelis"
+                  width={36}
+                  height={36}
+                  className="w-full h-full object-contain rounded-lg"
+                />
               </div>
               <h3 className="font-serif text-lg font-bold text-white tracking-wide">
                 Arsip Haul & Majelis Digital

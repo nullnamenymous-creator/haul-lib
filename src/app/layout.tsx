@@ -23,8 +23,9 @@ export const metadata: Metadata = {
     'Repositori arsip digital media haul, majelis ta\'lim, dan khazanah warisan ulama nusantara. Galeri foto, rekaman audio manaqib, video dokumentasi, dan risalah kitab.',
   manifest: '/manifest.json',
   icons: {
-    icon: '/icons/icon-192x192.png',
-    apple: '/icons/icon-192x192.png',
+    icon: '/icons/logo-haol.png',
+    shortcut: '/icons/logo-haol.png',
+    apple: '/icons/logo-haol.png',
   },
   appleWebApp: {
     capable: true,
@@ -49,6 +50,8 @@ export default function RootLayout({
     <html lang="id" className={`${sans.variable} ${amiri.variable}`}>
       <head>
         <link rel="manifest" href="/manifest.json" />
+        <link rel="icon" href="/icons/logo-haol.png" />
+        <link rel="apple-touch-icon" href="/icons/logo-haol.png" />
         <meta name="theme-color" content="#064e3b" />
       </head>
       <body className="font-sans min-h-screen flex flex-col bg-ivory-bg text-stone-900 antialiased selection:bg-gold-light selection:text-emerald-islamic">

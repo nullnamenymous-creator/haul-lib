@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { checkIsAdmin } from '@/lib/auth-check';
@@ -63,9 +64,16 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center justify-between h-16 sm:h-20">
             {/* Logo & Brand Title */}
             <Link href="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 p-0.5 shadow-md group-hover:scale-105 transition transform">
-                <div className="w-full h-full bg-emerald-950 rounded-[10px] flex items-center justify-center">
-                  <span className="font-serif text-amber-300 font-bold text-lg">ح</span>
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 p-0.5 shadow-md group-hover:scale-105 transition transform shrink-0 overflow-hidden">
+                <div className="w-full h-full bg-emerald-950 rounded-[10px] flex items-center justify-center p-0.5 overflow-hidden">
+                  <Image
+                    src="/icons/logo-haol.png"
+                    alt="Logo Haul & Majelis"
+                    width={44}
+                    height={44}
+                    className="w-full h-full object-contain rounded-lg"
+                    priority
+                  />
                 </div>
               </div>
               <div>

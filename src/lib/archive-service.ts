@@ -213,3 +213,94 @@ export async function deleteMediaArchive(
     return { success: false, error: err?.message };
   }
 }
+
+/**
+ * Creates a new Haul Event record in Supabase.
+ */
+export async function createHaulEvent(eventData: {
+  figure_id: string;
+  title: string;
+  hijri_year?: string | null;
+  masehi_year: number;
+  event_date?: string | null;
+  location?: string | null;
+}): Promise<{ success: boolean; data?: HaulEvent; error?: string }> {
+  try {
+    const supabase = createClient();
+    const { data, error } = await (supabase.from('haul_events') as any)
+      .insert([eventData])
+      .select('*, figure:figures(*)')
+      .single();
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+    return { success: true, data: data as HaulEvent };
+  } catch (err: any) {
+    return { success: false, error: err?.message };
+  }
+}
+
+/**
+ * Updates an existing Haul Event record in Supabase.
+ */
+export async function updateHaulEvent(
+  id: string,
+  updates: {
+    figure_id?: string;
+    title?: string;
+    hijri_year?: string | null;
+    masehi_year?: number;
+    event_date?: string | null;
+    location?: string | null;
+  }
+): Promise<{ success: boolean; data?: HaulEvent; error?: string }> {
+  try {
+    const supabase = createClient();
+    const { data, error } = await (supabase.from('haul_events') as any)
+      .update(updates)
+      .eq('id', id)
+      .select('*, figure:figures(*)')
+      .single();
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+    return { success: true, data: data as HaulEvent };
+  } catch (err: any) {
+    return { success: false, error: err?.message };
+  }
+}
+
+/**
+ * Deletes a Haul Event record in Supabase with safety check for attached media files.
+ */
+export async function deleteHaulEvent(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = createClient();
+
+    // Check if there are attached media files
+    const { count, error: countError } = await (supabase.from('media_files') as any)
+      .select('id', { count: 'exact', head: true })
+      .eq('event_id', id);
+
+    if (count && count > 0) {
+      return {
+        success: false,
+        error: `Tidak dapat menghapus perhelatan ini karena masih memiliki ${count} berkas media arsip. Hapus atau pindahkan berkas media terlebih dahulu.`,
+      };
+    }
+
+    const { error } = await (supabase.from('haul_events') as any)
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err?.message };
+  }
+}
+

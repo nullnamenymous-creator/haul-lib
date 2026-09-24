@@ -225,7 +225,7 @@ export default function AdminUploadPage() {
               Unggah Media & Dokumen Haul
             </h1>
             <p className="text-xs sm:text-sm text-stone-500 mt-1">
-              Berkas akan diunggah langsung ke Supabase Storage bucket <code>haul-archive</code> dan terhubung dengan katalog publik.
+              Berkas akan diunggah langsung ke Supabase Storage bucket <code>haul-archive</code> dan tersimpan di repositori berkas.
             </p>
           </div>
 
@@ -236,7 +236,7 @@ export default function AdminUploadPage() {
               <div className="flex-1 text-xs sm:text-sm">
                 <p className="font-bold">Unggahan Berhasil!</p>
                 <p className="text-emerald-800 mt-0.5">
-                  Berkas telah tersimpan dan langsung dapat diakses pada halaman katalog publik repositori.
+                  Berkas telah tersimpan dan langsung dapat dikelola di dasbor repositori.
                 </p>
                 <div className="mt-3 flex items-center gap-2">
                   <Button
