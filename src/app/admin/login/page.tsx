@@ -174,9 +174,9 @@ export default function AdminLoginPage() {
 
           {/* ISLAMIC HACKER HEADER */}
           <div className="text-center space-y-3 pt-1">
-            {/* Sacred Bismillah in Cyber Glow */}
-            <p className="font-serif text-amber-300/90 text-lg sm:text-xl tracking-widest drop-shadow-[0_0_10px_rgba(251,191,36,0.4)]">
-              بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+            {/* Header in Cyber Glow */}
+            <p className="font-serif text-amber-300 font-bold text-xl sm:text-2xl tracking-[0.2em] drop-shadow-[0_0_15px_rgba(251,191,36,0.6)] uppercase">
+              Ki Sabda Palon
             </p>
 
             {/* Glowing Logo Frame */}
