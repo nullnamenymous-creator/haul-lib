@@ -3,9 +3,9 @@
 import { createClient } from './supabase/client';
 
 // Supported Admin PINs and Passwords
-// Primary default is 1924 (historical milestone year) or custom env NEXT_PUBLIC_ADMIN_PIN
-const CONFIG_ADMIN_PIN = process.env.NEXT_PUBLIC_ADMIN_PIN || '1924';
-const VALID_ADMIN_PINS = [CONFIG_ADMIN_PIN, '1924', 'admin123', 'shobandi1924'];
+// Bisa diatur via environment variable NEXT_PUBLIC_ADMIN_PIN di .env.local atau Vercel
+const CUSTOM_ADMIN_PIN = process.env.NEXT_PUBLIC_ADMIN_PIN?.trim();
+const DEFAULT_ADMIN_PINS = ['1924', 'admin123', 'shobandi1924'];
 
 /**
  * Verifies if the provided PIN or password matches the admin credentials.
@@ -13,7 +13,14 @@ const VALID_ADMIN_PINS = [CONFIG_ADMIN_PIN, '1924', 'admin123', 'shobandi1924'];
 export function verifyAdminPin(inputPin: string): boolean {
   if (!inputPin) return false;
   const cleanPin = inputPin.trim();
-  return VALID_ADMIN_PINS.includes(cleanPin);
+
+  // Jika custom PIN diatur via NEXT_PUBLIC_ADMIN_PIN, hanya PIN tersebut yang berlaku
+  if (CUSTOM_ADMIN_PIN) {
+    return cleanPin === CUSTOM_ADMIN_PIN;
+  }
+
+  // Fallback PIN bawaan jika env belum diatur
+  return DEFAULT_ADMIN_PINS.includes(cleanPin);
 }
 
 /**

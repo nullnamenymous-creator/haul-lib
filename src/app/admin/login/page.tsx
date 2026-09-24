@@ -16,7 +16,6 @@ import {
   Eye,
   EyeOff,
   CheckCircle2,
-  Sparkles,
   ShieldAlert,
 } from 'lucide-react';
 
@@ -185,7 +184,7 @@ export default function AdminLoginPage() {
                     type={showPin ? 'text' : 'password'}
                     value={pin}
                     onChange={(e) => setPin(e.target.value)}
-                    placeholder="Masukkan PIN (cth: 1924)"
+                    placeholder="Masukkan PIN / Sandi Admin"
                     disabled={isVerifyingPin || pinSuccess}
                     className="w-full pl-4 pr-12 py-3 bg-stone-50 border border-stone-300 focus:bg-white focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/10 rounded-xl text-stone-900 placeholder:text-stone-400 text-center tracking-widest font-mono text-lg transition disabled:opacity-50"
                     autoFocus
@@ -199,22 +198,6 @@ export default function AdminLoginPage() {
                     {showPin ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-              </div>
-
-              {/* Quick default PIN hint */}
-              <div className="flex items-center justify-between text-[11px] text-stone-500 pt-0.5">
-                <span>PIN Bawaan Pengurus:</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPin('1924');
-                    setErrorMessage('');
-                  }}
-                  className="inline-flex items-center gap-1 font-mono font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300/50 transition cursor-pointer"
-                >
-                  <Sparkles className="w-3 h-3 text-amber-500" />
-                  <span>1924 (Gunakan PIN)</span>
-                </button>
               </div>
 
               <Button
