@@ -273,24 +273,40 @@ export async function updateHaulEvent(
 }
 
 /**
- * Deletes a Haul Event record in Supabase with safety check for attached media files.
+ * Deletes a Haul Event record and all associated media files and storage assets.
  */
 export async function deleteHaulEvent(id: string): Promise<{ success: boolean; error?: string }> {
   try {
     const supabase = createClient();
 
-    // Check if there are attached media files
-    const { count, error: countError } = await (supabase.from('media_files') as any)
-      .select('id', { count: 'exact', head: true })
-      .eq('event_id', id);
+    // 1. Clean up attached media files in Supabase Storage
+    try {
+      const { data: mediaItems } = await (supabase.from('media_files') as any)
+        .select('file_url')
+        .eq('event_id', id);
 
-    if (count && count > 0) {
-      return {
-        success: false,
-        error: `Tidak dapat menghapus perhelatan ini karena masih memiliki ${count} berkas media arsip. Hapus atau pindahkan berkas media terlebih dahulu.`,
-      };
+      if (mediaItems && mediaItems.length > 0) {
+        const pathsToRemove: string[] = [];
+        for (const item of mediaItems) {
+          if (item.file_url && item.file_url.includes('/haul-archive/')) {
+            const parts = item.file_url.split('/haul-archive/');
+            if (parts.length > 1) {
+              pathsToRemove.push(decodeURIComponent(parts[1]));
+            }
+          }
+        }
+        if (pathsToRemove.length > 0) {
+          await supabase.storage.from('haul-archive').remove(pathsToRemove);
+        }
+      }
+    } catch (storageErr) {
+      console.warn('Storage cleanup warning on event delete:', storageErr);
     }
 
+    // 2. Delete media_files linked to this event
+    await (supabase.from('media_files') as any).delete().eq('event_id', id);
+
+    // 3. Delete the haul_event itself
     const { error } = await (supabase.from('haul_events') as any)
       .delete()
       .eq('id', id);

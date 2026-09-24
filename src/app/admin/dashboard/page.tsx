@@ -373,6 +373,9 @@ export default function AdminDashboardPage() {
         text: `Perhelatan "${deletingEvent.title}" berhasil dihapus dari repositori.`,
       });
 
+      // Hapus berkas media yang terhubung dari state lokal
+      setMediaList((prev) => prev.filter((m) => m.event_id !== deletingEvent.id));
+
       const refreshed = await getHaulEvents();
       setEvents(refreshed);
       setDeletingEvent(null);
@@ -1059,16 +1062,16 @@ export default function AdminDashboardPage() {
       >
         <div className="space-y-4">
           {deletingEvent && getEventMediaCount(deletingEvent.id) > 0 ? (
-            <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-300 text-xs text-amber-900 leading-relaxed flex items-start gap-2.5">
-              <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+            <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-300 text-xs text-rose-900 leading-relaxed flex items-start gap-2.5">
+              <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
               <div>
-                <p className="font-semibold text-amber-950">Perhatian: Terdapat berkas media terhubung!</p>
+                <p className="font-semibold text-rose-950">Konfirmasi Hapus Beserta Berkas Terkait</p>
                 <p className="mt-1">
-                  Perhelatan <strong>{deletingEvent?.title}</strong> masih memiliki{' '}
-                  <strong className="text-amber-900">{getEventMediaCount(deletingEvent.id)} berkas media</strong> arsip.
+                  Perhelatan <strong>{deletingEvent?.title}</strong> memiliki{' '}
+                  <strong className="text-rose-900">{getEventMediaCount(deletingEvent.id)} berkas media</strong> arsip.
                 </p>
-                <p className="mt-1 text-[11px] text-amber-800">
-                  Untuk menjaga integritas data, silakan pindahkan atau hapus berkas-berkas media terkait di tab <strong>Koleksi Berkas Arsip</strong> sebelum menghapus perhelatan ini.
+                <p className="mt-1 text-[11px] text-rose-800">
+                  Menghapus perhelatan ini akan otomatis menghapus perhelatan beserta <strong>seluruh {getEventMediaCount(deletingEvent.id)} berkas media terkait</strong> secara permanen dari database dan penyimpanan cloud.
                 </p>
               </div>
             </div>
@@ -1099,7 +1102,6 @@ export default function AdminDashboardPage() {
               variant="danger"
               size="sm"
               isLoading={isDeletingEvent}
-              disabled={deletingEvent ? getEventMediaCount(deletingEvent.id) > 0 : false}
               onClick={handleConfirmDeleteEvent}
             >
               Hapus Permanen
